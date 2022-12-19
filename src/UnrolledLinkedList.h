@@ -6,10 +6,13 @@
 #include <string>
 #include <vector>
 #include <cstring>
-#include "UserSystem.h"
 const int SQRT = 316;
 const int MINBLOCK_SIZE = SQRT / 2;
 const int MAXBLOCK_SIZE = SQRT * 2;
+
+template <class T> class element;
+template <class T> class node;
+template <class T> class LinkList;
 
 template <class T>
 class element {
@@ -86,18 +89,16 @@ public:
 private:
 
   void readNode(const int& pos, node<T>& p);
-
   void readInfo(const int& pos, node<T>& p);
-
   void writeNode(const int& pos, node<T>& x);
 
 public:
+  bool empty();
   void split(node<T>& p);
   void merge(node<T>& p);
   void insert(const element<T>& x);
   void del(const element<T>& x);
-  std::vector<element<T>> find(const std::string& index);
-  void LinkList<BookstoreUser>::modify(const std::string& index, const std::string& curPassword, const std::string& newPassword);
+  std::vector<T> find(const std::string& index);
 
   void output();
 };

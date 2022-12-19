@@ -1,61 +1,70 @@
 #include "UserSystem.h"
 
 UserSystem::UserSystem() :UserData("User") {
-  BookstoreUser root("", "sjtu", "root", 7);
-  UserData.insert(element<BookstoreUser>{ "root", root });
+  if (UserData.empty()) {
+    user_cnt = 0;
+    file.open(+"");
+    BookstoreUser root("root", "sjtu", "", 7);
+    UserData.insert(element<int>{ "root", ++user_cnt });
+    std::ofstream create("User");
+    create.close();
+    file.open("User", std::ios::in | std::ios::out | std::ios::binary);
+  }
+  else {
+    file.open("User", std::ios::in | std::ios::out | std::ios::binary);
+    file.read(reinterpret_cast<char*>(&user_cnt), sizeof(int));
+  }
 }
 
 UserSystem::~UserSystem() {
+
   UserStack.clear();
 }
 
+void UserSystem::readUser(int& pos, BookstoreUser& p) {
+  auto res = UserData.find(p.user_id); pos = res[0];
+  file.seekg((pos - 1) * sizeof(BookstoreUser) + sizeof(user_cnt));
+  file.read(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
+}
+void UserSystem::writeUser(int& pos, BookstoreUser& p) {
+  file.seekp((pos - 1) * sizeof(BookstoreUser) + sizeof(user_cnt));
+  file.write(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
+}
+
 void UserSystem::UserRegister(const std::string& id, const std::string& password, const std::string& name, const int& p) {
-  BookstoreUser cur(id, password, name, p);
-  UserData.insert(element<BookstoreUser>{name, cur});
 }
 
 void UserSystem::UserLogin(const std::string& name,const std::string& password) {
-  auto res = UserData.find(name);
-  if (res[0].val.user_password == password) UserStack.push_back(res[0].val);
-  else std::cerr << "wrong password" << std::endl;
 }
 
 void UserSystem::ModifyPassword(const std::string& name,const std::string& curPassword,const std::string& newPassword) {
-  UserData.modify(name, curPassword, newPassword);
+
 }
 
 void UserSystem::UserLogout(const std::string& name) {
-  if (UserStack.back().user_name != name) std::cerr << "undefined behaviour" << std::endl;
-  UserStack.back().choice = "";
+  if (UserStack.back().first.user_name != name) std::cerr << "undefined behaviour" << std::endl;
   UserStack.pop_back();
 }
 
 BookstoreUser::BookstoreUser() {
-  user_id = user_password = user_name = choice = "";
   privilege = 0;
 }
 
 BookstoreUser::BookstoreUser(const std::string& id, const std::string& password, const std::string& name, const int& p) {
-  user_id = id; user_password = password; user_name = name;
-  privilege = p; choice = "";
+  privilege = p;
 }
 
 bool BookstoreUser::operator<(const BookstoreUser& a)const {
-  return user_name < a.user_name;
 }
 
 bool BookstoreUser::operator>(const BookstoreUser& a)const {
-  return user_name > a.user_name;
 }
 
 bool BookstoreUser::operator<=(const BookstoreUser& a)const {
-  return user_name <= a.user_name;
 }
 
 bool BookstoreUser::operator>=(const BookstoreUser& a)const {
-  return user_name >= a.user_name;
 }
 
 bool BookstoreUser::operator==(const BookstoreUser& a)const {
-  return user_name == a.user_name;
 }
