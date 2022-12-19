@@ -58,35 +58,35 @@ node<T>::node(int siz, int pos, int pre, int nxt)
 template <class T>
 LinkList<T>::LinkList(const std::string& str) {
   block_cnt = 0; space_cnt = 0; file_name = str;
-  file.open(file_name + ".dat", std::ios::in | std::ios::out);
+  file.open(file_name, std::ios::in | std::ios::out);
   if (file.good()) {
-    file >> block_cnt >> space_cnt;
-    file.close();
-    file.open(file_name + ".bin", std::ios::in | std::ios::out | std::ios::binary);
+    file.read(reinterpret_cast<char*>(&block_cnt), intSize);
+    file.read(reinterpret_cast<char*>(&space_cnt), intSize);
+    file.open(file_name, std::ios::in | std::ios::out | std::ios::binary);
   }
   else {
-    std::ofstream create(file_name + ".bin");
+    std::ofstream create(file_name);
     create.close();
-    file.open(file_name + ".bin", std::ios::in | std::ios::out | std::ios::binary);
+    file.open(file_name, std::ios::in | std::ios::out | std::ios::binary);
   }//create the file needed if not avaliable
 }
 template <class T>
 LinkList<T>::~LinkList() {
+  file.seekp(0);
+  file.write(reinterpret_cast<char*>(&block_cnt), intSize);
+  file.write(reinterpret_cast<char*>(&space_cnt), intSize);
   file.close();
-  std::fstream mainData(file_name + ".dat", std::ios::out | std::ios::trunc);
-  mainData << block_cnt << " " << space_cnt;
-  mainData.close();
 }
 
 template <class T>
 void LinkList<T>::readNode(const int& pos, node<T>& p) {
-  file.seekg((pos - 1) * nodeSize);
+  file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p), nodeSize);
 }
 
 template <class T>
 void LinkList<T>::readInfo(const int& pos, node<T>& p) {
-  file.seekg((pos - 1) * nodeSize);
+  file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p.siz), valSize);
   file.read(reinterpret_cast<char*>(&p.pos), valSize);
   file.read(reinterpret_cast<char*>(&p.pre), valSize);
@@ -98,7 +98,7 @@ void LinkList<T>::readInfo(const int& pos, node<T>& p) {
 template <class T>
 void LinkList<T>::writeNode(const int& pos, node<T>& x) {
   x.minimum = x.data[1]; x.maximum = x.data[x.siz];
-  file.seekp((pos - 1) * nodeSize);
+  file.seekp((pos - 1) * nodeSize + intSize * 2);
   file.write(reinterpret_cast<char*>(&x), nodeSize);
 }
 
@@ -250,3 +250,33 @@ void LinkList<T>::output() {
 
 template <class T>
 char LinkList<T>::buffer[64] = "";
+
+signed main() {
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(0); std::cout.tie(0);
+  LinkList<int> myList("data");
+  int n;
+  std::cin >> n;
+  std::string op, index;
+  int val;
+  for (int i = 1; i <= n; i++) {
+    std::cin >> op;
+    if (op == "insert") {
+      std::cin >> index >> val;
+      myList.insert(element{ index, val });
+    }
+    else if (op == "delete") {
+      std::cin >> index >> val;
+      myList.del(element{ index, val });
+    }
+    else {
+      std::cin >> index;
+      auto res = myList.find(index);
+      if (!res.size()) std::cout << "null";
+      for (int i = 0; i < res.size(); i++)
+        std::cout << res[i] << " ";
+      puts("");
+    }
+  }
+  return 0;
+}

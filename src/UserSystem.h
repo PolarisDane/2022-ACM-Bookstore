@@ -15,15 +15,13 @@ public:
 
   bool operator <(const BookstoreUser& a)const;
   bool operator >(const BookstoreUser& a)const;
-  bool operator <=(const BookstoreUser& a)const;
-  bool operator >=(const BookstoreUser& a)const;
   bool operator ==(const BookstoreUser& a)const;
 
 private:
   char user_id[31];
   char user_password[31];
   char user_name[31];
-  int privilege;
+  int privilege, login;
 };
 
 class UserSystem {
@@ -34,10 +32,12 @@ public:
   void readUser(int& pos, BookstoreUser& p);
   void writeUser(int& pos, BookstoreUser& p);
 
-  void UserRegister(const std::string& id, const std::string& password, const std::string& name, const int& p);
+  void UserRegister(const std::string& id, const std::string& password, const std::string& name);
   void UserLogin(const std::string& name, const std::string& password);
   void ModifyPassword(const std::string& name,const std::string& curPassword,const std::string& newPassword);
-  void UserLogout(const std::string& name);
+  void UserLogout();
+  void UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p);
+  void UserDelete(const std::string& id);
 private:
   std::fstream file;
 
