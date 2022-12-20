@@ -8,6 +8,7 @@
 
 class BookstoreUser {
   friend class UserSystem;
+  friend class BookSystem;
 public:
 
   BookstoreUser();
@@ -27,7 +28,10 @@ private:
 
 };
 
+extern std::vector<std::pair<BookstoreUser, std::string>> UserStack;
+
 class UserSystem {
+  friend class BookSystem;
 public:
 
   UserSystem();
@@ -49,7 +53,6 @@ private:
 
   int user_cnt;
   LinkList<int> UserData;
-  std::vector<std::pair<BookstoreUser, std::string>> UserStack;
 
 };
 

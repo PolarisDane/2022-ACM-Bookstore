@@ -1,6 +1,9 @@
 #include "UserSystem.h"
 
+std::vector<std::pair<BookstoreUser, std::string>> UserStack;
+
 UserSystem::UserSystem() :UserData("User") {
+  UserStack.clear();
   if (UserData.empty()) {
     user_cnt = 0;
     BookstoreUser root("root", "sjtu", "", 7);
@@ -20,14 +23,17 @@ UserSystem::UserSystem() :UserData("User") {
 UserSystem::~UserSystem() {
   file.seekp(0);
   file.write(reinterpret_cast<char*>(&user_cnt), sizeof(int));
+  file.close();
   UserStack.clear();
 }
 
 void UserSystem::readUser(int& pos, BookstoreUser& p) {
+  if (pos <= 0) exit(233);
   file.seekg((pos - 1) * sizeof(BookstoreUser) + sizeof(int));
   file.read(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
 }
 void UserSystem::writeUser(int& pos, BookstoreUser& p) {
+  if (pos <= 0) exit(233);
   file.seekp((pos - 1) * sizeof(BookstoreUser) + sizeof(int));
   file.write(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
 }
@@ -35,7 +41,7 @@ void UserSystem::writeUser(int& pos, BookstoreUser& p) {
 void UserSystem::UserRegister(const std::string& id, const std::string& password, const std::string& name) {
   auto res = UserData.find(id);
   if (res.size()) {
-    std::cerr << "user id already exists" << std::endl;
+    std::cerr << "error:user id already exists" << std::endl;
     return;
   }
   BookstoreUser newUser(id, password, name, 1);
@@ -47,7 +53,7 @@ void UserSystem::UserRegister(const std::string& id, const std::string& password
 void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   auto res = UserData.find(id);
   if (!res.size()) {
-    std::cerr << "user doesn't exists" << std::endl;
+    std::cerr << "error:user doesn't exists" << std::endl;
     return;
   }
   BookstoreUser curUser;
@@ -60,7 +66,7 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
     return;
   }
   if (curUser.user_password != password) {
-    std::cerr << "wrong password" << std::endl;
+    std::cerr << "error:wrong password" << std::endl;
     return;
   }
   curUser.login++;
@@ -71,12 +77,12 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
 
 void UserSystem::ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword) {
   if (UserStack.empty()) {
-    std::cerr << "authority not enough" << std::endl;
+    std::cerr << "error:authority not enough" << std::endl;
     return;
   }
   auto res = UserData.find(id);
   if (!res.size()) {
-    std::cerr << "user doesn't exists" << std::endl;
+    std::cerr << "error:user doesn't exists" << std::endl;
     return;
   }
   BookstoreUser curUser;
@@ -88,7 +94,7 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
     return;
   }
   if (curUser.user_password != curPassword) {
-    std::cerr << "wrong password" << std::endl;
+    std::cerr << "error:wrong password" << std::endl;
     return;
   }
   strcpy(curUser.user_password, newPassword.c_str());
@@ -98,7 +104,7 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
 
 void UserSystem::UserLogout() {
   if (UserStack.empty()) {
-    std::cerr << "log out failed, no current user available" << std::endl;
+    std::cerr << "error:log out failed, no current user available" << std::endl;
     return;
   }
   BookstoreUser curUser = UserStack.back().first;
@@ -111,12 +117,12 @@ void UserSystem::UserLogout() {
 
 void UserSystem::UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p) {
   if (UserStack.empty() || p >= UserStack.back().first.privilege || UserStack.back().first.privilege < 3) {
-    std::cerr << "authority not enough" << std::endl;
+    std::cerr << "error:authority not enough" << std::endl;
     return;
   }
   auto res = UserData.find(id);
   if (res.size()) {
-    std::cerr << "user id already exists" << std::endl;
+    std::cerr << "error:user id already exists" << std::endl;
     return;
   }
   BookstoreUser newUser(id, password, name, p);
@@ -127,18 +133,18 @@ void UserSystem::UserAdd(const std::string& id, const std::string& password, con
 
 void UserSystem::UserDelete(const std::string& id) {
   if (UserStack.empty() || UserStack.back().first.privilege != 7) {
-    std::cerr << "authority not enough" << std::endl;
+    std::cerr << "error:authority not enough" << std::endl;
     return;
   }
   auto res = UserData.find(id);
   if (!res.size()) {
-    std::cerr << "user doesn't exists" << std::endl;
+    std::cerr << "error:user doesn't exists" << std::endl;
     return;
   }
   BookstoreUser curUser;
   readUser(res[0], curUser);
   if (curUser.login) {
-    std::cerr << "delete failed, user logined in" << std::endl;
+    std::cerr << "error:delete failed, user logined in" << std::endl;
     return;
   }
   UserData.del(element<int>{id, res[0]});
@@ -170,3 +176,4 @@ bool BookstoreUser::operator>(const BookstoreUser& a)const {
 bool BookstoreUser::operator==(const BookstoreUser& a)const {
   return user_id == a.user_id;
 }
+

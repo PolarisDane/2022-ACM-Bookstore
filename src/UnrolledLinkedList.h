@@ -164,6 +164,7 @@ LinkList<T>::LinkList(const std::string& str) {
   block_cnt = 0; space_cnt = 0; file_name = str;
   file.open(file_name, std::ios::in | std::ios::out | std::ios::binary);
   if (file.good()) {
+    file.seekg(0);
     file.read(reinterpret_cast<char*>(&block_cnt), intSize);
     file.read(reinterpret_cast<char*>(&space_cnt), intSize);
   }
@@ -183,12 +184,14 @@ LinkList<T>::~LinkList() {
 
 template <class T>
 void LinkList<T>::readNode(const int& pos, node<T>& p) {
+  if (pos < 1) std::cout << "233" << std::endl;
   file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p), nodeSize);
 }
 
 template <class T>
 void LinkList<T>::readInfo(const int& pos, node<T>& p) {
+  if (pos < 1) std::cout << "233" << std::endl;
   file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p.siz), valSize);
   file.read(reinterpret_cast<char*>(&p.pos), valSize);
@@ -200,6 +203,7 @@ void LinkList<T>::readInfo(const int& pos, node<T>& p) {
 
 template <class T>
 void LinkList<T>::writeNode(const int& pos, node<T>& x) {
+  if (pos < 1) std::cout << "233" << std::endl;
   x.minimum = x.data[1]; x.maximum = x.data[x.siz];
   file.seekp((pos - 1) * nodeSize + intSize * 2);
   file.write(reinterpret_cast<char*>(&x), nodeSize);
@@ -304,7 +308,7 @@ void LinkList<T>::del(const element<T>& x) {
     p.siz--;
   }
   if (find_flag && p.siz == 0 && !p.nxt && !p.pre) {
-    block_cnt--;
+    block_cnt--; space_cnt = 0;
     return;
   }
   if (find_flag) {
@@ -347,6 +351,7 @@ void LinkList<T>::output() {
     for (int j = 1; j <= p.siz; j++) {
       std::cout << p.data[j].index << ":" << p.data[j].val << std::endl;
     }
+    if (!p.nxt) break;
     readNode(p.nxt, p);
   }
 }//for test only

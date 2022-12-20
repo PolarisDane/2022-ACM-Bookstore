@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include "UserSystem.h"
+#include "BookSystem.h"
 
 class BookstoreSystem {
 public:
