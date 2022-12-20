@@ -9,6 +9,7 @@
 class BookstoreUser {
   friend class UserSystem;
 public:
+
   BookstoreUser();
   BookstoreUser(const std::string& id, const std::string& password, const std::string& name, const int& p);
   ~BookstoreUser() = default;
@@ -18,14 +19,17 @@ public:
   bool operator ==(const BookstoreUser& a)const;
 
 private:
+
   char user_id[31];
   char user_password[31];
   char user_name[31];
   int privilege, login;
+
 };
 
 class UserSystem {
 public:
+
   UserSystem();
   ~UserSystem();
 
@@ -33,17 +37,20 @@ public:
   void writeUser(int& pos, BookstoreUser& p);
 
   void UserRegister(const std::string& id, const std::string& password, const std::string& name);
-  void UserLogin(const std::string& name, const std::string& password);
-  void ModifyPassword(const std::string& name,const std::string& curPassword,const std::string& newPassword);
+  void UserLogin(const std::string& id, const std::string& password);
+  void ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword);
   void UserLogout();
   void UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p);
   void UserDelete(const std::string& id);
+
 private:
+
   std::fstream file;
 
   int user_cnt;
   LinkList<int> UserData;
   std::vector<std::pair<BookstoreUser, std::string>> UserStack;
+
 };
 
 #endif

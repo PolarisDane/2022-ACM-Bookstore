@@ -1,5 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
+set(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_COMPILER /usr/bin/g++)
 PROJECT(Bookstore)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src/)
-AUX_SOURCE_DIRECTORY(/src/ SRC_LIST)
-ADD_EXECUTABLE(code ${SRC_LIST} src/main.cpp src/UnrolledLinkedList.h src/UserSystem.cpp)
+ADD_EXECUTABLE(code src/UnrolledLinkedList.h src/UserSystem.cpp src/main.cpp)

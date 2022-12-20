@@ -3,12 +3,12 @@
 UserSystem::UserSystem() :UserData("User") {
   if (UserData.empty()) {
     user_cnt = 0;
-    file.open(+"");
     BookstoreUser root("root", "sjtu", "", 7);
     UserData.insert(element<int>{ "root", ++user_cnt });
-    std::ofstream create("User");
+    std::ofstream create("User.dat");
     create.close();
     file.open("User.dat", std::ios::in | std::ios::out | std::ios::binary);
+    writeUser(user_cnt, root);
   }
   else {
     file.open("User.dat", std::ios::in | std::ios::out | std::ios::binary);
@@ -24,7 +24,6 @@ UserSystem::~UserSystem() {
 }
 
 void UserSystem::readUser(int& pos, BookstoreUser& p) {
-  auto res = UserData.find(p.user_id); pos = res[0];
   file.seekg((pos - 1) * sizeof(BookstoreUser) + sizeof(int));
   file.read(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
 }
@@ -42,6 +41,7 @@ void UserSystem::UserRegister(const std::string& id, const std::string& password
   BookstoreUser newUser(id, password, name, 1);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
+  std::cout << "user registered:\nid:" << id << "\npassword:" << password << "\nname:" << name << std::endl;
 }
 
 void UserSystem::UserLogin(const std::string& id,const std::string& password) {
@@ -52,22 +52,28 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   }
   BookstoreUser curUser;
   readUser(res[0], curUser);
-  if (UserStack.back().first.privilege > curUser.privilege) {
-    UserStack.push_back(std::make_pair(curUser, "0"));
+  if (!UserStack.empty() && UserStack.back().first.privilege > curUser.privilege) {
     curUser.login++;
+    UserStack.push_back(std::make_pair(curUser, "0"));
     writeUser(res[0], curUser);
+    std::cout << "login success by override" << std::endl;
     return;
   }
   if (curUser.user_password != password) {
     std::cerr << "wrong password" << std::endl;
     return;
   }
-  UserStack.push_back(std::make_pair(curUser, "0"));
   curUser.login++;
+  UserStack.push_back(std::make_pair(curUser, ""));
   writeUser(res[0], curUser);
+  std::cout << "login success:" << id << std::endl;
 }
 
 void UserSystem::ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword) {
+  if (UserStack.empty()) {
+    std::cerr << "authority not enough" << std::endl;
+    return;
+  }
   auto res = UserData.find(id);
   if (!res.size()) {
     std::cerr << "user doesn't exists" << std::endl;
@@ -78,6 +84,7 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
   if (UserStack.back().first.privilege == 7) {
     strcpy(curUser.user_password, newPassword.c_str());
     writeUser(res[0], curUser);
+    std::cout << "user password modified by override:\nid:" << id << std::endl;
     return;
   }
   if (curUser.user_password != curPassword) {
@@ -86,11 +93,12 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
   }
   strcpy(curUser.user_password, newPassword.c_str());
   writeUser(res[0], curUser);
+  std::cout << "user password modified:\nid:" << id << std::endl;
 }
 
 void UserSystem::UserLogout() {
   if (UserStack.empty()) {
-    std::cerr << "no user logined in" << std::endl;
+    std::cerr << "log out failed, no current user available" << std::endl;
     return;
   }
   BookstoreUser curUser = UserStack.back().first;
@@ -98,10 +106,11 @@ void UserSystem::UserLogout() {
   auto res = UserData.find(curUser.user_id);
   writeUser(res[0], curUser);
   UserStack.pop_back();
+  std::cout << "logout success:" << curUser.user_id << "\nlogin times left:" << curUser.login << std::endl;
 }
 
 void UserSystem::UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p) {
-  if (p >= UserStack.back().first.privilege) {
+  if (UserStack.empty() || p >= UserStack.back().first.privilege || UserStack.back().first.privilege < 3) {
     std::cerr << "authority not enough" << std::endl;
     return;
   }
@@ -113,9 +122,14 @@ void UserSystem::UserAdd(const std::string& id, const std::string& password, con
   BookstoreUser newUser(id, password, name, p);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
+  std::cout << "user added:\nid:" << id << "\npassword:" << password << "\nname:" << name << "\nprivilege:" << p << std::endl;
 }
 
 void UserSystem::UserDelete(const std::string& id) {
+  if (UserStack.empty() || UserStack.back().first.privilege != 7) {
+    std::cerr << "authority not enough" << std::endl;
+    return;
+  }
   auto res = UserData.find(id);
   if (!res.size()) {
     std::cerr << "user doesn't exists" << std::endl;
@@ -124,10 +138,11 @@ void UserSystem::UserDelete(const std::string& id) {
   BookstoreUser curUser;
   readUser(res[0], curUser);
   if (curUser.login) {
-    std::cerr << "user logined in" << std::endl;
+    std::cerr << "delete failed, user logined in" << std::endl;
     return;
   }
   UserData.del(element<int>{id, res[0]});
+  std::cout << "delete success:" << id << std::endl;
 }
 
 BookstoreUser::BookstoreUser() {
