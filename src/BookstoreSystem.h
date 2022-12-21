@@ -9,14 +9,15 @@
 
 class BookstoreSystem {
 public:
-  BookstoreSystem();
-  ~BookstoreSystem();
 
-private:
-  UserSystem users;
-  BookSystem books;
-  LogSystem log;
+  BookstoreSystem() = default;
+  ~BookstoreSystem() = default;
+
+  UserSystem UserSys;
+  BookSystem BookSys;
 
 };
+
+extern BookstoreSystem BookstoreSys;
 
 #endif

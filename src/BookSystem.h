@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <unordered_map>
 #include "UnrolledLinkedList.h"
 #include "UserSystem.h"
 
@@ -56,11 +57,21 @@ public:
 
   void ModifyBook(const int& type, const std::string& str);
 
+  void ListBook();
+
+  void ShowFinanceLog(int count);
+
   friend std::vector<std::string> getKeyword(const std::string& str);
 
 private:
 
   std::fstream file;
+
+  std::fstream fin_log_file;
+
+  std::vector<double> income, outcome;
+
+  int fin_log_cnt;
 
   int book_cnt;
   LinkList<int> ISBNData, NameData, AuthorData, KeywordData;

@@ -1,9 +1,3 @@
-#include "BookstoreaSystem.h"
+#include "BookstoreSystem.h"
 
-BookstoreSystem::BookstoreSystem() {
-
-}
-
-BookstoreSystem::~BookstoreSystem() {
-
-}
+BookstoreSystem BookstoreSys;

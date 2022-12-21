@@ -13,4 +13,4 @@ _deps
 .vs
 out
 code
-rm.bat
+rm

@@ -102,6 +102,7 @@ public:
   std::vector<T> find(const std::string& index);
 
   void output();
+  std::vector<T> listAll();
 };
 
 template <class T>
@@ -355,6 +356,19 @@ void LinkList<T>::output() {
     readNode(p.nxt, p);
   }
 }//for test only
+template <class T>
+std::vector<T> LinkList<T>::listAll() {
+  std::vector<T> res;
+  node<T> p;
+  readNode(1, p);
+  for (int i = 1; i <= block_cnt; i++) {
+    for (int j = 1; j <= p.siz; j++)
+      res.push_back(p.data[j].val);
+    if (!p.nxt) break;
+    readNode(p.nxt, p);
+  }
+  return res;
+}
 
 template <class T>
 char LinkList<T>::buffer[64] = "";

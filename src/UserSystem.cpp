@@ -28,12 +28,10 @@ UserSystem::~UserSystem() {
 }
 
 void UserSystem::readUser(int& pos, BookstoreUser& p) {
-  if (pos <= 0) exit(233);
   file.seekg((pos - 1) * sizeof(BookstoreUser) + sizeof(int));
   file.read(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
 }
 void UserSystem::writeUser(int& pos, BookstoreUser& p) {
-  if (pos <= 0) exit(233);
   file.seekp((pos - 1) * sizeof(BookstoreUser) + sizeof(int));
   file.write(reinterpret_cast<char*>(&p), sizeof(BookstoreUser));
 }
