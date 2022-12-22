@@ -23,8 +23,8 @@ UserSystem::UserSystem() :UserData("User") {
 UserSystem::~UserSystem() {
   file.seekp(0);
   file.write(reinterpret_cast<char*>(&user_cnt), sizeof(int));
+  while (!UserStack.empty()) UserLogout();
   file.close();
-  UserStack.clear();
 }
 
 void UserSystem::readUser(int& pos, BookstoreUser& p) {
@@ -42,7 +42,7 @@ void UserSystem::UserRegister(const std::string& id, const std::string& password
   BookstoreUser newUser(id, password, name, 1);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
-  std::cout << "user registered:\nid:" << id << "\npassword:" << password << "\nname:" << name << std::endl;
+  //std::cout << "user registered:\nid:" << id << "\npassword:" << password << "\nname:" << name << std::endl;
 }
 
 void UserSystem::UserLogin(const std::string& id,const std::string& password) {
@@ -54,14 +54,16 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
     curUser.login++;
     UserStack.push_back(std::make_pair(curUser, 0));
     writeUser(res[0], curUser);
-    std::cout << "login success by override" << std::endl;
+    //std::cout << "login success by override" << std::endl;
+    //std::cout << "login user count" << UserStack.size() << std::endl;
     return;
   }
   if (curUser.user_password != password) throw Exception("error:wrong password");
   curUser.login++;
   UserStack.push_back(std::make_pair(curUser, 0));
   writeUser(res[0], curUser);
-  std::cout << "login success:" << id << std::endl;
+  //std::cout << "login success:" << id << std::endl;
+  //std::cout << "login user count" << UserStack.size() << std::endl;
 }
 
 void UserSystem::ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword) {
@@ -73,23 +75,24 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
   if (UserStack.back().first.privilege == 7) {
     strcpy(curUser.user_password, newPassword.c_str());
     writeUser(res[0], curUser);
-    std::cout << "user password modified by override:\nid:" << id << std::endl;
+    //std::cout << "user password modified by override:\nid:" << id << std::endl;
     return;
   }
   if (curUser.user_password != curPassword) throw Exception("error:wrong password");
   strcpy(curUser.user_password, newPassword.c_str());
   writeUser(res[0], curUser);
-  std::cout << "user password modified:\nid:" << id << std::endl;
+  //std::cout << "user password modified:\nid:" << id << std::endl;
 }
 
 void UserSystem::UserLogout() {
   if (UserStack.empty()) throw Exception("error:log out failed, no current user available");
   BookstoreUser curUser = UserStack.back().first;
-  curUser.login--;
   auto res = UserData.find(curUser.user_id);
+  readUser(res[0], curUser);
+  curUser.login--;
   writeUser(res[0], curUser);
   UserStack.pop_back();
-  std::cout << "logout success:" << curUser.user_id << "\nlogin times left:" << curUser.login << std::endl;
+  //std::cout << "logout success:" << curUser.user_id << "\nlogin times left:" << curUser.login << std::endl;
 }
 
 void UserSystem::UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p) {
@@ -101,7 +104,7 @@ void UserSystem::UserAdd(const std::string& id, const std::string& password, con
   BookstoreUser newUser(id, password, name, p);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
-  std::cout << "user added:\nid:" << id << "\npassword:" << password << "\nname:" << name << "\nprivilege:" << p << std::endl;
+  //std::cout << "user added:\nid:" << id << "\npassword:" << password << "\nname:" << name << "\nprivilege:" << p << std::endl;
 }
 
 void UserSystem::UserDelete(const std::string& id) {
@@ -112,7 +115,7 @@ void UserSystem::UserDelete(const std::string& id) {
   readUser(res[0], curUser);
   if (curUser.login) throw Exception("error:delete failed, user logined in");
   UserData.del(element<int>{id, res[0]});
-  std::cout << "delete success:" << id << std::endl;
+  //std::cout << "delete success:" << id << std::endl;
 }
 
 BookstoreUser::BookstoreUser() {

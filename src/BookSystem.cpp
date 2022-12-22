@@ -5,16 +5,16 @@ BookSystem::BookSystem() :ISBNData("ISBN"), NameData("Name"),
   if (ISBNData.empty()) {
     book_cnt = fin_log_cnt = 0;
     std::ofstream create("Book.dat");
-    create.open("fin.dat");
     create.close();
+    create.open("finance.dat", std::ios::out | std::ios::trunc);
     file.open("Book.dat", std::ios::in | std::ios::out | std::ios::binary);
-    fin_log_file.open("fin.dat", std::ios::in | std::ios::out | std::ios::binary);
+    fin_log_file.open("finance.dat", std::ios::in | std::ios::out | std::ios::binary);
   }
   else {
     file.open("Book.dat", std::ios::in | std::ios::out | std::ios::binary);
     file.seekg(0);
     file.read(reinterpret_cast<char*>(&book_cnt), sizeof(int));
-    fin_log_file.open("fin.dat", std::ios::in | std::ios::out | std::ios::binary);
+    fin_log_file.open("finance.dat", std::ios::in | std::ios::out | std::ios::binary);
     fin_log_file.seekg(0);
     fin_log_file.read(reinterpret_cast<char*>(&fin_log_cnt), sizeof(int));
     income.resize(fin_log_cnt); outcome.resize(fin_log_cnt);
@@ -71,10 +71,10 @@ void BookSystem::selectBook(const std::string& isbn) {
     KeywordData.insert(element<int>{"", book_cnt});
     res.push_back(book_cnt);
     writeBook(book_cnt, curBook);
-    std::cout << "new book added" << std::endl;
+    //std::cout << "new book added" << std::endl;
   }
   UserStack.back().second = res[0];
-  std::cout << "book selected\n" << "ISBN:" << isbn << std::endl;
+  //std::cout << "book selected\n" << "ISBN:" << isbn << std::endl;
 }
 
 void BookSystem::readBook(int& pos, BookstoreBook& p) {
@@ -87,7 +87,7 @@ void BookSystem::writeBook(int& pos, BookstoreBook& p) {
 }
 
 void BookSystem::output(const BookstoreBook& p) {
-  std::cout << "search result:";
+  //std::cout << "search result:";
   std::cout << p.ISBN << "\t";
   std::cout << p.BookName << "\t";
   std::cout << p.Author << "\t";
@@ -97,6 +97,7 @@ void BookSystem::output(const BookstoreBook& p) {
 }
 
 void BookSystem::ListBook() {
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   if (!book_cnt) {
     puts(""); return;
   }
@@ -155,7 +156,6 @@ void BookSystem::SearchAuthor(const std::string& author) {
 
 void BookSystem::SearchKeyword(const std::string& keyword) {
   if (UserStack.empty()) throw Exception("error:authority not enough");
-  if (keyword.find('|') != keyword.npos) throw Exception("error:mutiple keywords when searching");
   auto res = KeywordData.find(keyword);
   std::vector<BookstoreBook> ret;
   BookstoreBook curBook;
@@ -187,7 +187,8 @@ void BookSystem::BuyBook(const std::string& isbn, const int& q) {
     income.push_back(income.back() + q * curBook.Price);
     outcome.push_back(outcome.back());
   }
-  std::cout << std::fixed << std::setprecision(2) << "books bought with a total cost of " << q * curBook.Price << std::endl;
+  std::cout << std::fixed << std::setprecision(2) << q * curBook.Price << std::endl;
+  //std::cout << std::fixed << std::setprecision(2) << "books bought with a total cost of " << q * curBook.Price << std::endl;
 }
 
 void BookSystem::ImportBook(const int& q, const double& totalcost) {
@@ -208,7 +209,7 @@ void BookSystem::ImportBook(const int& q, const double& totalcost) {
     income.push_back(income.back());
     outcome.push_back(outcome.back() + totalcost);
   }
-  std::cout << std::fixed << std::setprecision(2) << q << " books imported costing " << totalcost << std::endl;
+  //std::cout << std::fixed << std::setprecision(2) << q << " books imported costing " << totalcost << std::endl;
 }
 
 void BookSystem::ModifyBook(const int& type, const std::string& str) {
@@ -238,22 +239,17 @@ void BookSystem::ModifyBook(const int& type, const std::string& str) {
     AuthorData.insert(element<int>{curBook.Author, pos});
   }
   else if (type == 4) {
-    auto ret1 = getKeyword(str);
-    std::unordered_map<std::string, int> keyword_table;
-    for (int i = 0; i < ret1.size(); i++) {
-      if (keyword_table.find(ret1[i]) != keyword_table.end()) throw Exception("error:identical keyword");
-      keyword_table[ret1[i]] = 1;
-    }
-    auto ret2 = getKeyword(curBook.Keyword);
-    for (int i = 0; i < ret2.size(); i++)
-      KeywordData.del(element<int>{ret2[i], pos});
+    auto ret = getKeyword(curBook.Keyword);
+    for (int i = 0; i < ret.size(); i++)
+      KeywordData.del(element<int>{ret[i], pos});
     strcpy(curBook.Keyword, str.c_str());
-    for (int i = 0; i < ret1.size(); i++)
-      KeywordData.insert(element<int>{ret1[i], pos});
+    ret = getKeyword(curBook.Keyword);
+    for (int i = 0; i < ret.size(); i++)
+      KeywordData.insert(element<int>{ret[i], pos});
   }
   else if (type == 5) curBook.Price = std::stod(str);
   writeBook(pos, curBook);
-  std::cout << "info modified" << std::endl;
+  //std::cout << "info modified" << std::endl;
 }
 
 void BookSystem::ShowFinanceLog(int count) {
@@ -262,14 +258,18 @@ void BookSystem::ShowFinanceLog(int count) {
     puts(""); return;
   }
   if (count > fin_log_cnt) throw Exception("error:invalid count of finance log");
-  std::cout << "finance log:" << std::endl;
+  //std::cout << "finance log:" << std::endl;
   if (count == -1) {
-    std::cout << std::fixed << std::setprecision(2) << "+" << income.back() << "-" << outcome.back() << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "+ " << income.back() << " - " << outcome.back() << std::endl;
+    return;
+  }
+  if (count == fin_log_cnt) {
+    std::cout << std::fixed << std::setprecision(2) << "+ " << income.back() << " - " << outcome.back() << std::endl;
     return;
   }
   double incomeVal = income.back() - income[fin_log_cnt - count - 1];
   double outcomeVal = outcome.back() - outcome[fin_log_cnt - count - 1];
-  std::cout << std::fixed << std::setprecision(2) << "+" << incomeVal << "-" << outcomeVal << std::endl;
+  std::cout << std::fixed << std::setprecision(2) << "+ " << incomeVal << " - " << outcomeVal << std::endl;
 }
 
 BookstoreBook::BookstoreBook() {
