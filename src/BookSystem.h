@@ -2,11 +2,13 @@
 #define ACM_BOOKSTORE_BOOKSYSTEM
 
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <algorithm>
 #include <unordered_map>
 #include "UnrolledLinkedList.h"
 #include "UserSystem.h"
+#include "Exception.h"
 
 class BookstoreBook {
   friend class BookSystem;

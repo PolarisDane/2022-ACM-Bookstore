@@ -60,8 +60,7 @@ std::vector<std::string> getKeyword(const std::string& str) {
 
 void BookSystem::selectBook(const std::string& isbn) {
   if (UserStack.empty() || UserStack.back().first.privilege < 3) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
+    throw Exception("error:authority not enough");
   }
   auto res = ISBNData.find(isbn);
   if (!res.size()) {
@@ -92,7 +91,7 @@ void BookSystem::output(const BookstoreBook& p) {
   std::cout << p.BookName << "\t";
   std::cout << p.Author << "\t";
   std::cout << p.Keyword << "\t";
-  std::cout << p.Price << "\t";
+  std::cout << std::fixed << std::setprecision(2) << p.Price << "\t";
   std::cout << p.Quantity << "\n";
 }
 
@@ -109,10 +108,7 @@ void BookSystem::ListBook() {
 }
 
 void BookSystem::SearchISBN(const std::string& isbn) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = ISBNData.find(isbn);
   std::vector<BookstoreBook> ret;
   BookstoreBook curBook;
@@ -127,10 +123,7 @@ void BookSystem::SearchISBN(const std::string& isbn) {
 }
 
 void BookSystem::SearchName(const std::string& name) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = NameData.find(name);
   std::vector<BookstoreBook> ret;
   BookstoreBook curBook;
@@ -145,10 +138,7 @@ void BookSystem::SearchName(const std::string& name) {
 }
 
 void BookSystem::SearchAuthor(const std::string& author) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = AuthorData.find(author);
   std::vector<BookstoreBook> ret;
   BookstoreBook curBook;
@@ -163,14 +153,8 @@ void BookSystem::SearchAuthor(const std::string& author) {
 }
 
 void BookSystem::SearchKeyword(const std::string& keyword) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
-  if (keyword.find('|') != keyword.npos) {
-    std::cerr << "error:mutiple keywords when searching" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
+  if (keyword.find('|') != keyword.npos) throw Exception("error:mutiple keywords when searching");
   auto res = KeywordData.find(keyword);
   std::vector<BookstoreBook> ret;
   BookstoreBook curBook;
@@ -185,21 +169,12 @@ void BookSystem::SearchKeyword(const std::string& keyword) {
 }
 
 void BookSystem::BuyBook(const std::string& isbn, const int& q) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = ISBNData.find(isbn);
-  if (res.empty()) {
-    std::cerr << "error:book doesn't exist" << std::endl;
-    return;
-  }
+  if (res.empty()) throw Exception("error:book doesn't exist");
   BookstoreBook curBook;
   readBook(res[0], curBook);
-  if (curBook.Quantity < q) {
-    std::cerr << "error:quantity not enough" << std::endl;
-    return;
-  }
+  if (curBook.Quantity < q) throw Exception("error:quantity not enough");
   curBook.Quantity -= q;
   writeBook(res[0], curBook);
   fin_log_cnt++;
@@ -211,18 +186,14 @@ void BookSystem::BuyBook(const std::string& isbn, const int& q) {
     income.push_back(income.back() + q * curBook.Price);
     outcome.push_back(outcome.back());
   }
-  std::cout << "books bought with a total cost of " << q * curBook.Price << std::endl;
+  std::cout << std::fixed << std::setprecision(2) << "books bought with a total cost of " << q * curBook.Price << std::endl;
 }
 
 void BookSystem::ImportBook(const int& q, const double& totalcost) {
   if (UserStack.empty() || UserStack.back().first.privilege < 3) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
+    throw Exception("error:authority not enough");
   }
-  if (UserStack.back().second == "") {
-    std::cerr << "error:no selected book" << std::endl;
-    return;
-  }
+  if (UserStack.back().second == "") throw Exception("error:no selected book");
   auto res = ISBNData.find(UserStack.back().second);
   BookstoreBook curBook;
   readBook(res[0], curBook);
@@ -237,45 +208,39 @@ void BookSystem::ImportBook(const int& q, const double& totalcost) {
     income.push_back(income.back());
     outcome.push_back(outcome.back() + totalcost);
   }
-  std::cout << q << " books imported costing " << totalcost << std::endl;
+  std::cout << std::fixed << std::setprecision(2) << q << " books imported costing " << totalcost << std::endl;
 }
 
 void BookSystem::ModifyBook(const int& type, const std::string& str) {
-  if (UserStack.empty() || UserStack.back().second == "") {
-    std::cerr << "error:no selected book" << std::endl;
-    return;
-  }
+  if (UserStack.empty() || UserStack.back().second == "") throw Exception("error:no selected book");
   std::string curISBN = UserStack.back().second;
   auto res = ISBNData.find(curISBN);
   BookstoreBook curBook;
   readBook(res[0], curBook);
   if (type == 1) {
-    if (curISBN == str) {
-      std::cerr << "error:ISBN not changed" << std::endl;
-      return;
-    }
+    if (curISBN == str) throw Exception("error:ISBN not changed");
+    auto ret = ISBNData.find(str);
+    if (!ret.empty()) throw Exception("error:identical ISBN");
     ISBNData.del(element<int>{curBook.ISBN, res[0]});
     strcpy(curBook.ISBN, str.c_str());
     ISBNData.insert(element<int>{curBook.ISBN, res[0]});
+    UserStack.back().second = str;
   }
   else if (type == 2) {
-    strcpy(curBook.BookName, str.c_str());
     NameData.del(element<int>{curBook.BookName, res[0]});
+    strcpy(curBook.BookName, str.c_str());
     NameData.insert(element<int>{curBook.BookName, res[0]});
   }
   else if (type == 3) {
-    strcpy(curBook.Author, str.c_str());
     AuthorData.del(element<int>{curBook.Author, res[0]});
+    strcpy(curBook.Author, str.c_str());
     AuthorData.insert(element<int>{curBook.Author, res[0]});
   }
   else if (type == 4) {
     auto ret1 = getKeyword(str);
     std::unordered_map<std::string, int> keyword_table;
     for (int i = 0; i < ret1.size(); i++) {
-      if (keyword_table.find(ret1[i]) != keyword_table.end()) {
-        std::cerr << "error:identical keyword" << std::endl;
-        return;
-      }
+      if (keyword_table.find(ret1[i]) != keyword_table.end()) throw Exception("error:identical keyword");
       keyword_table[ret1[i]] = 1;
     }
     auto ret2 = getKeyword(curBook.Keyword);
@@ -291,25 +256,19 @@ void BookSystem::ModifyBook(const int& type, const std::string& str) {
 }
 
 void BookSystem::ShowFinanceLog(int count) {
-  if (UserStack.back().first.privilege != 7) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.back().first.privilege != 7) throw Exception("error:authority not enough");
   if (!count) {
     puts(""); return;
   }
-  if (count > fin_log_cnt) {
-    std::cerr << "error:invalid count of finance log" << std::endl;
-    return;
-  }
+  if (count > fin_log_cnt) throw Exception("error:invalid count of finance log");
   std::cout << "finance log:" << std::endl;
   if (count == -1) {
-    std::cout << "+" << income.back() << "-" << outcome.back() << "=" << income.back() - outcome.back() << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << "+" << income.back() << "-" << outcome.back() << std::endl;
     return;
   }
-  double incomeVal = income.back() - income[fin_log_cnt - count];
-  double outcomeVal = outcome.back() - outcome[fin_log_cnt - count];
-  std::cout << "+" << incomeVal << "-" << outcomeVal << "=" << incomeVal - outcomeVal << std::endl;
+  double incomeVal = income.back() - income[fin_log_cnt - count - 1];
+  double outcomeVal = outcome.back() - outcome[fin_log_cnt - count - 1];
+  std::cout << std::fixed << std::setprecision(2) << "+" << incomeVal << "-" << outcomeVal << std::endl;
 }
 
 BookstoreBook::BookstoreBook() {

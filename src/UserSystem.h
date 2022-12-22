@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include "UnrolledLinkedList.h"
+#include "Exception.h"
 
 class BookstoreUser {
   friend class UserSystem;

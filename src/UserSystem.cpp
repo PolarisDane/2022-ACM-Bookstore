@@ -38,10 +38,7 @@ void UserSystem::writeUser(int& pos, BookstoreUser& p) {
 
 void UserSystem::UserRegister(const std::string& id, const std::string& password, const std::string& name) {
   auto res = UserData.find(id);
-  if (res.size()) {
-    std::cerr << "error:user id already exists" << std::endl;
-    return;
-  }
+  if (res.size()) throw Exception("error:user id already exists");
   BookstoreUser newUser(id, password, name, 1);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
@@ -50,10 +47,7 @@ void UserSystem::UserRegister(const std::string& id, const std::string& password
 
 void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   auto res = UserData.find(id);
-  if (!res.size()) {
-    std::cerr << "error:user doesn't exists" << std::endl;
-    return;
-  }
+  if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
   readUser(res[0], curUser);
   if (!UserStack.empty() && UserStack.back().first.privilege > curUser.privilege) {
@@ -63,10 +57,7 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
     std::cout << "login success by override" << std::endl;
     return;
   }
-  if (curUser.user_password != password) {
-    std::cerr << "error:wrong password" << std::endl;
-    return;
-  }
+  if (curUser.user_password != password) throw Exception("error:wrong password");
   curUser.login++;
   UserStack.push_back(std::make_pair(curUser, ""));
   writeUser(res[0], curUser);
@@ -74,15 +65,9 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
 }
 
 void UserSystem::ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword) {
-  if (UserStack.empty()) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = UserData.find(id);
-  if (!res.size()) {
-    std::cerr << "error:user doesn't exists" << std::endl;
-    return;
-  }
+  if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
   readUser(res[0], curUser);
   if (UserStack.back().first.privilege == 7) {
@@ -91,20 +76,14 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
     std::cout << "user password modified by override:\nid:" << id << std::endl;
     return;
   }
-  if (curUser.user_password != curPassword) {
-    std::cerr << "error:wrong password" << std::endl;
-    return;
-  }
+  if (curUser.user_password != curPassword) throw Exception("error:wrong password");
   strcpy(curUser.user_password, newPassword.c_str());
   writeUser(res[0], curUser);
   std::cout << "user password modified:\nid:" << id << std::endl;
 }
 
 void UserSystem::UserLogout() {
-  if (UserStack.empty()) {
-    std::cerr << "error:log out failed, no current user available" << std::endl;
-    return;
-  }
+  if (UserStack.empty()) throw Exception("error:log out failed, no current user available");
   BookstoreUser curUser = UserStack.back().first;
   curUser.login--;
   auto res = UserData.find(curUser.user_id);
@@ -115,14 +94,10 @@ void UserSystem::UserLogout() {
 
 void UserSystem::UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p) {
   if (UserStack.empty() || p >= UserStack.back().first.privilege || UserStack.back().first.privilege < 3) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
+    throw Exception("error:authority not enough");
   }
   auto res = UserData.find(id);
-  if (res.size()) {
-    std::cerr << "error:user id already exists" << std::endl;
-    return;
-  }
+  if (res.size()) throw Exception("error:user id already exists");
   BookstoreUser newUser(id, password, name, p);
   UserData.insert(element<int>{id, ++user_cnt});
   writeUser(user_cnt, newUser);
@@ -130,21 +105,12 @@ void UserSystem::UserAdd(const std::string& id, const std::string& password, con
 }
 
 void UserSystem::UserDelete(const std::string& id) {
-  if (UserStack.empty() || UserStack.back().first.privilege != 7) {
-    std::cerr << "error:authority not enough" << std::endl;
-    return;
-  }
+  if (UserStack.empty() || UserStack.back().first.privilege != 7) throw Exception("error:authority not enough");
   auto res = UserData.find(id);
-  if (!res.size()) {
-    std::cerr << "error:user doesn't exists" << std::endl;
-    return;
-  }
+  if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
   readUser(res[0], curUser);
-  if (curUser.login) {
-    std::cerr << "error:delete failed, user logined in" << std::endl;
-    return;
-  }
+  if (curUser.login) throw Exception("error:delete failed, user logined in");
   UserData.del(element<int>{id, res[0]});
   std::cout << "delete success:" << id << std::endl;
 }

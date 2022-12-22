@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdlib.h>
 #include "BookstoreSystem.h"
+#include "Exception.h"
 
 void ReadLine(const std::string& str, std::string* buf);
 
