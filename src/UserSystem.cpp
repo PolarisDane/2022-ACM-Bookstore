@@ -1,6 +1,6 @@
 #include "UserSystem.h"
 
-std::vector<std::pair<BookstoreUser, std::string>> UserStack;
+std::vector<std::pair<BookstoreUser, int>> UserStack;
 
 UserSystem::UserSystem() :UserData("User") {
   UserStack.clear();
@@ -52,14 +52,14 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   readUser(res[0], curUser);
   if (!UserStack.empty() && UserStack.back().first.privilege > curUser.privilege) {
     curUser.login++;
-    UserStack.push_back(std::make_pair(curUser, "0"));
+    UserStack.push_back(std::make_pair(curUser, 0));
     writeUser(res[0], curUser);
     std::cout << "login success by override" << std::endl;
     return;
   }
   if (curUser.user_password != password) throw Exception("error:wrong password");
   curUser.login++;
-  UserStack.push_back(std::make_pair(curUser, ""));
+  UserStack.push_back(std::make_pair(curUser, 0));
   writeUser(res[0], curUser);
   std::cout << "login success:" << id << std::endl;
 }

@@ -29,7 +29,7 @@ private:
 
 };
 
-extern std::vector<std::pair<BookstoreUser, std::string>> UserStack;
+extern std::vector<std::pair<BookstoreUser, int>> UserStack;
 
 class UserSystem {
   friend class BookSystem;

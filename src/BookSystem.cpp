@@ -69,10 +69,11 @@ void BookSystem::selectBook(const std::string& isbn) {
     NameData.insert(element<int>{"", book_cnt});
     AuthorData.insert(element<int>{"", book_cnt});
     KeywordData.insert(element<int>{"", book_cnt});
+    res.push_back(book_cnt);
     writeBook(book_cnt, curBook);
     std::cout << "new book added" << std::endl;
   }
-  UserStack.back().second = isbn;
+  UserStack.back().second = res[0];
   std::cout << "book selected\n" << "ISBN:" << isbn << std::endl;
 }
 
@@ -193,12 +194,11 @@ void BookSystem::ImportBook(const int& q, const double& totalcost) {
   if (UserStack.empty() || UserStack.back().first.privilege < 3) {
     throw Exception("error:authority not enough");
   }
-  if (UserStack.back().second == "") throw Exception("error:no selected book");
-  auto res = ISBNData.find(UserStack.back().second);
+  if (!UserStack.back().second) throw Exception("error:no selected book");
   BookstoreBook curBook;
-  readBook(res[0], curBook);
+  readBook(UserStack.back().second, curBook);
   curBook.Quantity += q;
-  writeBook(res[0], curBook);
+  writeBook(UserStack.back().second, curBook);
   fin_log_cnt++;
   if (income.empty()) {
     income.push_back(0);
@@ -212,29 +212,30 @@ void BookSystem::ImportBook(const int& q, const double& totalcost) {
 }
 
 void BookSystem::ModifyBook(const int& type, const std::string& str) {
-  if (UserStack.empty() || UserStack.back().second == "") throw Exception("error:no selected book");
-  std::string curISBN = UserStack.back().second;
-  auto res = ISBNData.find(curISBN);
+  if (UserStack.empty() || UserStack.back().first.privilege < 3) {
+    throw Exception("error:authority not enough");
+  }
+  if (!UserStack.back().second) throw Exception("error:no selected book");
+  int pos = UserStack.back().second;
   BookstoreBook curBook;
-  readBook(res[0], curBook);
+  readBook(pos, curBook);
   if (type == 1) {
-    if (curISBN == str) throw Exception("error:ISBN not changed");
+    if (curBook.ISBN == str) throw Exception("error:ISBN not changed");
     auto ret = ISBNData.find(str);
     if (!ret.empty()) throw Exception("error:identical ISBN");
-    ISBNData.del(element<int>{curBook.ISBN, res[0]});
+    ISBNData.del(element<int>{curBook.ISBN, pos});
     strcpy(curBook.ISBN, str.c_str());
-    ISBNData.insert(element<int>{curBook.ISBN, res[0]});
-    UserStack.back().second = str;
+    ISBNData.insert(element<int>{curBook.ISBN, pos});
   }
   else if (type == 2) {
-    NameData.del(element<int>{curBook.BookName, res[0]});
+    NameData.del(element<int>{curBook.BookName, pos});
     strcpy(curBook.BookName, str.c_str());
-    NameData.insert(element<int>{curBook.BookName, res[0]});
+    NameData.insert(element<int>{curBook.BookName, pos});
   }
   else if (type == 3) {
-    AuthorData.del(element<int>{curBook.Author, res[0]});
+    AuthorData.del(element<int>{curBook.Author, pos});
     strcpy(curBook.Author, str.c_str());
-    AuthorData.insert(element<int>{curBook.Author, res[0]});
+    AuthorData.insert(element<int>{curBook.Author, pos});
   }
   else if (type == 4) {
     auto ret1 = getKeyword(str);
@@ -245,13 +246,13 @@ void BookSystem::ModifyBook(const int& type, const std::string& str) {
     }
     auto ret2 = getKeyword(curBook.Keyword);
     for (int i = 0; i < ret2.size(); i++)
-      KeywordData.del(element<int>{ret2[i], res[0]});
+      KeywordData.del(element<int>{ret2[i], pos});
     strcpy(curBook.Keyword, str.c_str());
     for (int i = 0; i < ret1.size(); i++)
-      KeywordData.insert(element<int>{ret1[i], res[0]});
+      KeywordData.insert(element<int>{ret1[i], pos});
   }
   else if (type == 5) curBook.Price = std::stod(str);
-  writeBook(res[0], curBook);
+  writeBook(pos, curBook);
   std::cout << "info modified" << std::endl;
 }
 
