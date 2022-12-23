@@ -64,7 +64,7 @@ bool ValidateUserData3(const std::string& str) {
 }//Privilege
 
 bool ValidateISBN(const std::string& str) {
-  if (str.length() > 20) return false;
+  if (str.length() > 20 || !str.length()) return false;
   for (int i = 0; i < str.length(); i++) {
     if (str[i] <= 31 || str[i] >= 127)
       return false;
@@ -75,6 +75,7 @@ bool ValidateISBN(const std::string& str) {
 bool ValidateNameAuthor(const std::string& str) {
   if (str.length() > 60) return false;
   if (str[0] != '"' || str.back() != '"') return false;
+  if (str.length() <= 2) return false;
   for (int i = 1; i < str.length() - 1; i++) {
     if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
       return false;
@@ -85,6 +86,7 @@ bool ValidateNameAuthor(const std::string& str) {
 bool ValidateKeyword(const std::string& str) {
   if (str.length() > 60) return false;
   if (str[0] != '"' || str.back() != '"') return false;
+  if (str.length() <= 2) return false;
   for (int i = 1; i < str.length() - 1; i++) {
     if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
       return false;

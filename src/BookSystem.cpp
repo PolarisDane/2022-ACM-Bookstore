@@ -105,6 +105,7 @@ void BookSystem::ListBook() {
     readBook(res[i], curBook);
     output(curBook);
   }
+  if (res.empty()) puts("");
 }
 
 void BookSystem::SearchISBN(const std::string& isbn) {
@@ -119,6 +120,7 @@ void BookSystem::SearchISBN(const std::string& isbn) {
   //sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
+  if (res.empty()) puts("");
 }
 
 void BookSystem::SearchName(const std::string& name) {
@@ -133,6 +135,7 @@ void BookSystem::SearchName(const std::string& name) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
+  if (res.empty()) puts("");
 }
 
 void BookSystem::SearchAuthor(const std::string& author) {
@@ -147,6 +150,7 @@ void BookSystem::SearchAuthor(const std::string& author) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
+  if (res.empty()) puts("");
 }
 
 void BookSystem::SearchKeyword(const std::string& keyword) {
@@ -161,6 +165,7 @@ void BookSystem::SearchKeyword(const std::string& keyword) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
+  if (res.empty()) puts("");
 }
 
 void BookSystem::BuyBook(const std::string& isbn, const int& q) {
