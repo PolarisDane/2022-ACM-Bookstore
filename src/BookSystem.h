@@ -71,7 +71,7 @@ private:
 
   std::fstream fin_log_file;
 
-  std::vector<double> income, outcome;
+  std::vector<long double> income, outcome;
 
   int fin_log_cnt;
 

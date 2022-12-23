@@ -98,9 +98,7 @@ void BookSystem::output(const BookstoreBook& p) {
 
 void BookSystem::ListBook() {
   if (UserStack.empty()) throw Exception("error:authority not enough");
-  if (!book_cnt) {
-    puts(""); return;
-  }
+  if (!book_cnt) return;
   BookstoreBook curBook;
   auto res = ISBNData.listAll();
   for (int i = 0; i < book_cnt; i++) {
@@ -121,7 +119,6 @@ void BookSystem::SearchISBN(const std::string& isbn) {
   //sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
-  if (ret.empty()) puts("");
 }
 
 void BookSystem::SearchName(const std::string& name) {
@@ -136,7 +133,6 @@ void BookSystem::SearchName(const std::string& name) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
-  if (ret.empty()) puts("");
 }
 
 void BookSystem::SearchAuthor(const std::string& author) {
@@ -151,7 +147,6 @@ void BookSystem::SearchAuthor(const std::string& author) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
-  if (ret.empty()) puts("");
 }
 
 void BookSystem::SearchKeyword(const std::string& keyword) {
@@ -166,7 +161,6 @@ void BookSystem::SearchKeyword(const std::string& keyword) {
   sort(ret.begin(), ret.end());
   for (int i = 0; i < ret.size(); i++)
     output(ret[i]);
-  if (ret.empty()) puts("");
 }
 
 void BookSystem::BuyBook(const std::string& isbn, const int& q) {
@@ -260,6 +254,10 @@ void BookSystem::ShowFinanceLog(int count) {
   if (count > fin_log_cnt) throw Exception("error:invalid count of finance log");
   //std::cout << "finance log:" << std::endl;
   if (count == -1) {
+    if (!fin_log_cnt) {
+      std::cout << "+ 0.00 - 0.00";
+      return;
+    }
     std::cout << std::fixed << std::setprecision(2) << "+ " << income.back() << " - " << outcome.back() << std::endl;
     return;
   }

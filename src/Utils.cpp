@@ -24,6 +24,7 @@ bool JudgeKeyword(const std::string& str) {
   std::string tmp;
   if (!str.length()) return true;
   int pos = 0;
+  if (str[0] == '|' || str.back() == '|') return false;
   for (int i = 0; i < str.length(); i++) {
     if (str[i] == '|') {
       tmp = str.substr(pos, i - pos);
@@ -50,7 +51,7 @@ bool ValidateUserData1(const std::string& str) {
 bool ValidateUserData2(const std::string& str) {
   if (str.length() > 30) return false;
   for (int i = 0; i < str.length(); i++) {
-    if (str[i] <= 31 || str[i] == 127)
+    if (str[i] <= 31 || str[i] >= 127)
       return false;
   }
   return true;
@@ -58,14 +59,14 @@ bool ValidateUserData2(const std::string& str) {
 
 bool ValidateUserData3(const std::string& str) {
   if (str.length() != 1) return false;
-  if (str[0] == '0' || str[0] == '1' || str[0] == '3' || str[0] == '7') return true;
+  if (str[0] == '1' || str[0] == '3' || str[0] == '7') return true;
   return false;
 }//Privilege
 
 bool ValidateISBN(const std::string& str) {
   if (str.length() > 20) return false;
   for (int i = 0; i < str.length(); i++) {
-    if (str[i] <= 31 || str[i] == 127)
+    if (str[i] <= 31 || str[i] >= 127)
       return false;
   }
   return true;
@@ -75,7 +76,7 @@ bool ValidateNameAuthor(const std::string& str) {
   if (str.length() > 60) return false;
   if (str[0] != '"' || str.back() != '"') return false;
   for (int i = 1; i < str.length() - 1; i++) {
-    if (str[i] <= 31 || str[i] == 127 || str[i] == '"')
+    if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
       return false;
   }
   return true;
@@ -85,7 +86,7 @@ bool ValidateKeyword(const std::string& str) {
   if (str.length() > 60) return false;
   if (str[0] != '"' || str.back() != '"') return false;
   for (int i = 1; i < str.length() - 1; i++) {
-    if (str[i] <= 31 || str[i] == 127 || str[i] == '"')
+    if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
       return false;
     if (i && str[i] == '|' && str[i - 1] == '|') return false;
   }
@@ -96,6 +97,7 @@ bool ValidateKeyword(const std::string& str) {
 bool ValidateQuantity(const std::string& str) {
   if (!str.length()) return true;
   if (str.length() > 10) return false;
+  if (str[0] == '0' && str.length() > 1) return false;
   for (int i = 0; i < str.length(); i++) {
     if (!(str[i] >= '0' && str[i] <= '9')) return false;
   }
@@ -105,6 +107,7 @@ bool ValidateQuantity(const std::string& str) {
 
 bool ValidatePrice(const std::string& str) {
   if (str.length() > 13) return false;
+  if (str[0] == '0' && (str.length() > 1 && str[1] != '.')) return false;
   if (str[0] == '.' || str.back() == '.') return false;
   if (count(str.begin(), str.end(), '.') > 1) return false;
   for (int i = 0; i < str.length(); i++) {
@@ -115,6 +118,7 @@ bool ValidatePrice(const std::string& str) {
 
 bool ValidateCost(const std::string& str) {
   if (str.length() > 13) return false;
+  if (str[0] == '0' && (str.length() > 1 && str[1] != '.')) return false;
   if (str[0] == '.' || str.back() == '.') return false;
   if (count(str.begin(), str.end(), '.') > 1) return false;
   for (int i = 0; i < str.length(); i++) {
@@ -127,6 +131,7 @@ bool ValidateCost(const std::string& str) {
 bool ValidateCount(const std::string& str) {
   if (!str.length()) return true;
   if (str.length() > 10) return false;
+  if (str[0] == '0' && str.length() > 1) return false;
   for (int i = 0; i < str.length(); i++) {
     if (!(str[i] >= '0' && str[i] <= '9')) return false;
   }
