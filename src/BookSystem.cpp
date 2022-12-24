@@ -257,7 +257,7 @@ void BookSystem::ShowFinanceLog(int count) {
   //std::cout << "finance log:" << std::endl;
   if (count == -1) {
     if (!fin_log_cnt) {
-      std::cout << "+ 0.00 - 0.00";
+      std::cout << "+ 0.00 - 0.00" << std::endl;
       return;
     }
     std::cout << std::fixed << std::setprecision(2) << "+ " << income.back() << " - " << outcome.back() << std::endl;

@@ -214,22 +214,22 @@ void BookstoreWork() {
         int len = buffer[2].length();
         if (len >= 6 && buffer[2].substr(0, 6) == "-ISBN=") {
           if (!ValidateISBN(buffer[2].substr(6))) throw Exception("error:invalid argument");
+          BookstoreSys.BookSys.SearchISBN(buffer[2].substr(6));
         }
         else if (len >= 7 && buffer[2].substr(0, 6) == "-name=") {
           if (!ValidateNameAuthor(buffer[2].substr(6))) throw Exception("error:invalid argument");
+          BookstoreSys.BookSys.SearchName(buffer[2].substr(7, buffer[2].length() - 8));
         }
         else if (len >= 9 && buffer[2].substr(0, 8) == "-author=") {
           if (!ValidateNameAuthor(buffer[2].substr(8))) throw Exception("error:invalid argument");
+          BookstoreSys.BookSys.SearchAuthor(buffer[2].substr(9, buffer[2].length() - 10));
         }
         else if (len >= 10 && buffer[2].substr(0, 9) == "-keyword=") {
           if (!ValidateKeyword(buffer[2].substr(9))) throw Exception("error:invalid argument");
           ValidateKeywordForSearch(buffer[2].substr(10, buffer[2].length() - 1));
+          BookstoreSys.BookSys.SearchKeyword(buffer[2].substr(10, buffer[2].length() - 11));
         }
         else throw Exception("error:invalid argument");
-        if (buffer[2][1] == 'I') { BookstoreSys.BookSys.SearchISBN(buffer[2].substr(6)); }
-        else if (buffer[2][1] == 'n') { BookstoreSys.BookSys.SearchName(buffer[2].substr(7, buffer[2].length() - 8)); }
-        else if (buffer[2][1] == 'a') { BookstoreSys.BookSys.SearchAuthor(buffer[2].substr(9, buffer[2].length() - 10)); }
-        else if (buffer[2][1] == 'k') { BookstoreSys.BookSys.SearchKeyword(buffer[2].substr(10, buffer[2].length() - 11)); }
       }
       else if (buffer[1] == "buy") {
         if (cnt != 3) throw Exception("error:invalid argument");
