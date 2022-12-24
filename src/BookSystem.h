@@ -31,7 +31,7 @@ private:
   char Author[61];
   char Keyword[61];
 
-  int Quantity;
+  long long Quantity;
   double Price;
 
 };
