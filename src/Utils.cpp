@@ -198,9 +198,11 @@ void BookstoreWork() {
       else if (buffer[1] == "show") {
         if (buffer[2] == "finance") {
           if (cnt != 2 && cnt != 3) throw Exception("error:invalid argument");
-          if (!ValidateCount(buffer[3])) throw Exception("error:invalid argument");
           if (cnt == 2) BookstoreSys.BookSys.ShowFinanceLog(-1);
-          else BookstoreSys.BookSys.ShowFinanceLog(std::stoi(buffer[3]));
+          else {
+            if (!ValidateCount(buffer[3])) throw Exception("error:invalid argument");
+            BookstoreSys.BookSys.ShowFinanceLog(std::stoi(buffer[3]));
+          }
           continue;
         }
         if (cnt == 1) {
