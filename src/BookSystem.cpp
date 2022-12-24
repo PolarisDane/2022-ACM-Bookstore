@@ -249,7 +249,7 @@ void BookSystem::ModifyBook(const int& type, const std::string& str) {
 }
 
 void BookSystem::ShowFinanceLog(int count) {
-  if (UserStack.back().first.privilege != 7) throw Exception("error:authority not enough");
+  if (UserStack.empty() || UserStack.back().first.privilege != 7) throw Exception("error:authority not enough");
   if (!count) {
     puts(""); return;
   }

@@ -133,7 +133,6 @@ bool ValidateCost(const std::string& str) {
 }
 
 bool ValidateCount(const std::string& str) {
-  if (!str.length()) return true;
   if (str.length() > 10) return false;
   if (str[0] == '0' && str.length() > 1) return false;
   for (int i = 0; i < str.length(); i++) {
@@ -210,7 +209,7 @@ void BookstoreWork() {
           BookstoreSys.BookSys.ListBook();
           continue;
         }
-        if (cnt >= 3) throw Exception("error:invalid argument");
+        if (cnt != 2) throw Exception("error:invalid argument");
         int len = buffer[2].length();
         if (len >= 6 && buffer[2].substr(0, 6) == "-ISBN=") {
           if (!ValidateISBN(buffer[2].substr(6))) throw Exception("error:invalid argument");
@@ -306,7 +305,7 @@ void BookstoreWork() {
     }
   }
   ExitSystem();
-}//检查输入字符合法性未完成
+}
 
 void ExitSystem() {
   //std::cout << "exiting system" << std::endl;
