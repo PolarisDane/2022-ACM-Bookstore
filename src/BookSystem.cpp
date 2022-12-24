@@ -19,8 +19,8 @@ BookSystem::BookSystem() :ISBNData("ISBN"), NameData("Name"),
     fin_log_file.read(reinterpret_cast<char*>(&fin_log_cnt), sizeof(int));
     income.resize(fin_log_cnt); outcome.resize(fin_log_cnt);
     for (int i = 0; i < fin_log_cnt; i++) {
-      fin_log_file.read(reinterpret_cast<char*>(&income[i]), sizeof(double));
-      fin_log_file.read(reinterpret_cast<char*>(&outcome[i]), sizeof(double));
+      fin_log_file.read(reinterpret_cast<char*>(&income[i]), sizeof(long double));
+      fin_log_file.read(reinterpret_cast<char*>(&outcome[i]), sizeof(long double));
     }
   }
 }
@@ -32,8 +32,8 @@ BookSystem::~BookSystem() {
   fin_log_file.seekp(0);
   fin_log_file.write(reinterpret_cast<char*>(&fin_log_cnt), sizeof(int));
   for (int i = 0; i < fin_log_cnt; i++) {
-    fin_log_file.write(reinterpret_cast<char*>(&income[i]), sizeof(double));
-    fin_log_file.write(reinterpret_cast<char*>(&outcome[i]), sizeof(double));
+    fin_log_file.write(reinterpret_cast<char*>(&income[i]), sizeof(long double));
+    fin_log_file.write(reinterpret_cast<char*>(&outcome[i]), sizeof(long double));
   }
   fin_log_file.close();
 }
@@ -41,10 +41,6 @@ BookSystem::~BookSystem() {
 std::vector<std::string> getKeyword(const std::string& str) {
   std::vector<std::string> res;
   std::string tmp;
-  if (!str.length()) {
-    res.push_back("");
-    return res;
-  }
   int pos = 0;
   for (int i = 0; i < str.length(); i++) {
     if (str[i] == '|') {
@@ -98,14 +94,15 @@ void BookSystem::output(const BookstoreBook& p) {
 
 void BookSystem::ListBook() {
   if (UserStack.empty()) throw Exception("error:authority not enough");
-  if (!book_cnt) return;
+  if (!book_cnt) {
+    puts(""); return;
+  }
   BookstoreBook curBook;
   auto res = ISBNData.listAll();
   for (int i = 0; i < book_cnt; i++) {
     readBook(res[i], curBook);
     output(curBook);
   }
-  if (res.empty()) puts("");
 }
 
 void BookSystem::SearchISBN(const std::string& isbn) {

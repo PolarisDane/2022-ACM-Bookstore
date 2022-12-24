@@ -6,6 +6,7 @@ void ReadLine(const std::string& str, std::string* buf) {
     if (str[i] == ' ') {
       if (pos != i) buf[++cnt] = str.substr(pos, i - pos);
       pos = i + 1;
+      if (cnt == 9) throw Exception("invalid argument");
     }
   }
   if (pos <= str.length() - 1) {
@@ -22,7 +23,6 @@ void ValidateKeywordForSearch(const std::string& str) {
 bool JudgeKeyword(const std::string& str) {
   std::unordered_map<std::string, int> ret;
   std::string tmp;
-  if (!str.length()) return true;
   int pos = 0;
   if (str[0] == '|' || str.back() == '|') return false;
   for (int i = 0; i < str.length(); i++) {
@@ -37,7 +37,7 @@ bool JudgeKeyword(const std::string& str) {
   if (ret.find(tmp) != ret.end()) return false;
   ret[tmp] = 1;
   return true;
-}
+}//finding identical keywords
 
 bool ValidateUserData1(const std::string& str) {
   if (str.length() > 30) return false;
@@ -51,7 +51,7 @@ bool ValidateUserData1(const std::string& str) {
 bool ValidateUserData2(const std::string& str) {
   if (str.length() > 30) return false;
   for (int i = 0; i < str.length(); i++) {
-    if (str[i] <= 31 || str[i] >= 127)
+    if (str[i] <= 32 || str[i] >= 127)
       return false;
   }
   return true;
@@ -66,7 +66,7 @@ bool ValidateUserData3(const std::string& str) {
 bool ValidateISBN(const std::string& str) {
   if (str.length() > 20 || !str.length()) return false;
   for (int i = 0; i < str.length(); i++) {
-    if (str[i] <= 31 || str[i] >= 127)
+    if (str[i] <= 32 || str[i] >= 127)
       return false;
   }
   return true;
@@ -77,7 +77,7 @@ bool ValidateNameAuthor(const std::string& str) {
   if (str[0] != '"' || str.back() != '"') return false;
   if (str.length() <= 2) return false;
   for (int i = 1; i < str.length() - 1; i++) {
-    if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
+    if (str[i] <= 32 || str[i] >= 127 || str[i] == '"')
       return false;
   }
   return true;
@@ -88,9 +88,9 @@ bool ValidateKeyword(const std::string& str) {
   if (str[0] != '"' || str.back() != '"') return false;
   if (str.length() <= 2) return false;
   for (int i = 1; i < str.length() - 1; i++) {
-    if (str[i] <= 31 || str[i] >= 127 || str[i] == '"')
+    if (str[i] <= 32 || str[i] >= 127 || str[i] == '"')
       return false;
-    if (i && str[i] == '|' && str[i - 1] == '|') return false;
+    if (str[i] == '|' && str[i - 1] == '|') return false;
   }
   if (!JudgeKeyword(str.substr(1, str.length() - 2))) return false;
   return true;
@@ -145,15 +145,16 @@ void BookstoreWork() {
   std::string order;
   std::string buffer[10];
   std::string str;
+  for (int i = 0; i < 10; i++) buffer[i].clear();
   //freopen("my.out", "w", stdout);
   while (getline(std::cin, order)) {
     for (int i = 0; i < 10; i++) buffer[i].clear();
-    ReadLine(order, buffer);
-    int cnt = std::stoi(buffer[0]);
-    //for (int i = 1; i <= cnt; i++) {
-    //  std::cout << "keyword" << i << ":" << buffer[i] << std::endl;
-    //}
     try {
+      ReadLine(order, buffer);
+      int cnt = std::stoi(buffer[0]);
+      //for (int i = 1; i <= cnt; i++) {
+      //  std::cout << "keyword" << i << ":" << buffer[i] << std::endl;
+      //}
       if (buffer[1] == "su") {
         if (cnt != 2 && cnt != 3) throw Exception("error:invalid argument");
         if (!ValidateUserData1(buffer[2])) throw Exception("error:invalid argument");
@@ -209,19 +210,20 @@ void BookstoreWork() {
         int hit[5] = { 0,0,0,0,0 };
         bool flag = false;
         for (int i = 2; i <= cnt; i++) {
-          if (buffer[i].substr(0, 6) == "-ISBN=") {
+          int len = buffer[i].length();
+          if (len >= 6 && buffer[i].substr(0, 6) == "-ISBN=") {
             hit[1]++; flag |= (hit[1] > 1);
             if (!ValidateISBN(buffer[i].substr(6))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 6) == "-name=") {
+          else if (len >= 7 && buffer[i].substr(0, 6) == "-name=") {
             hit[2]++; flag |= (hit[2] > 1);
             if (!ValidateNameAuthor(buffer[i].substr(6))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 8) == "-author=") {
+          else if (len >= 9 && buffer[i].substr(0, 8) == "-author=") {
             hit[3]++; flag |= (hit[3] > 1);
             if (!ValidateNameAuthor(buffer[i].substr(8))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 9) == "-keyword=") {
+          else if (len >= 10 && buffer[i].substr(0, 9) == "-keyword=") {
             hit[4]++; flag |= (hit[4] > 1);
             if (!ValidateKeyword(buffer[i].substr(9))) throw Exception("error:invalid argument");
             ValidateKeywordForSearch(buffer[i].substr(10, buffer[i].length() - 1));
@@ -254,23 +256,24 @@ void BookstoreWork() {
         int hit[6] = { 0,0,0,0,0,0 };
         bool flag = false;
         for (int i = 2; i <= cnt; i++) {
-          if (buffer[i].substr(0, 6) == "-ISBN=") {
+          int len = buffer[i].length();
+          if (len >= 6 && buffer[i].substr(0, 6) == "-ISBN=") {
             hit[1]++; flag |= (hit[1] > 1);
             if (!ValidateISBN(buffer[i].substr(6))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 6) == "-name=") {
+          else if (len >= 7 && buffer[i].substr(0, 6) == "-name=") {
             hit[2]++; flag |= (hit[2] > 1);
             if (!ValidateNameAuthor(buffer[i].substr(6))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 8) == "-author=") {
+          else if (len >= 9 && buffer[i].substr(0, 8) == "-author=") {
             hit[3]++; flag |= (hit[3] > 1);
             if (!ValidateNameAuthor(buffer[i].substr(8))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 9) == "-keyword=") {
+          else if (len >= 10 && buffer[i].substr(0, 9) == "-keyword=") {
             hit[4]++; flag |= (hit[4] > 1);
             if (!ValidateKeyword(buffer[i].substr(9))) throw Exception("error:invalid argument");
           }
-          else if (buffer[i].substr(0, 7) == "-price=") {
+          else if (len >= 7 && buffer[i].substr(0, 7) == "-price=") {
             hit[5]++; flag |= (hit[5] > 1);
             if (!ValidatePrice(buffer[i].substr(7))) throw Exception("error:invalid argument");
           }
