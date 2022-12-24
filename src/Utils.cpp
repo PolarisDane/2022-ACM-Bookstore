@@ -3,6 +3,7 @@
 void ReadLine(const std::string& str, std::string* buf) {
   int pos = 0, cnt = 0;
   for (int i = 0; i < str.length(); i++) {
+    if (str[i] <= 31 || str[i] >= 127) throw Exception("invalid argument");
     if (str[i] == ' ') {
       if (pos != i) buf[++cnt] = str.substr(pos, i - pos);
       pos = i + 1;
