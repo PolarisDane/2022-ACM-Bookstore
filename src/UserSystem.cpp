@@ -50,7 +50,7 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
   readUser(res[0], curUser);
-  if (curUser.user_password != password) throw Exception("error:wrong password");
+  if (!password.empty() && curUser.user_password != password) throw Exception("error:wrong password");
   if (!UserStack.empty() && UserStack.back().first.privilege > curUser.privilege) {
     curUser.login++;
     UserStack.push_back(std::make_pair(curUser, 0));
@@ -72,7 +72,7 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
   if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
   readUser(res[0], curUser);
-  if (curUser.user_password != curPassword) throw Exception("error:wrong password");
+  if (!curPassword.empty() && curUser.user_password != curPassword) throw Exception("error:wrong password");
   if (UserStack.back().first.privilege == 7) {
     strcpy(curUser.user_password, newPassword.c_str());
     writeUser(res[0], curUser);
