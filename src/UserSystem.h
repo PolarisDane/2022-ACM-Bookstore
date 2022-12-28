@@ -31,6 +31,7 @@ private:
 };
 
 extern std::vector<std::pair<BookstoreUser, int>> UserStack;
+//登录栈，每次拿出来的时候更新User的数据，后面为选中的书在数据库中的数据位置
 
 class UserSystem {
   friend class BookSystem;
@@ -45,7 +46,7 @@ public:
 
   void UserRegister(const std::string& id, const std::string& password, const std::string& name);
   void UserLogin(const std::string& id, const std::string& password);
-  void ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword);
+  void ModifyPassword(const std::string& id, const std::string& curPassword, const std::string& newPassword);
   void UserLogout();
   void UserAdd(const std::string& id, const std::string& password, const std::string& name, const int& p);
   void UserDelete(const std::string& id);

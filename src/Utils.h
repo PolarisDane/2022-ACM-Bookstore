@@ -9,11 +9,11 @@
 #include "BookstoreSystem.h"
 #include "Exception.h"
 
-void ReadLine(const std::string& str, std::string* buf);
+void ReadLine(const std::string& str, std::string* buf);//读入一行并进行拆分
 
-void ValidateKeywordForSearch(const std::string& str);
+void ValidateKeywordForSearch(const std::string& str);//判断是否只有一个keyword
 
-bool JudgeKeyword(const std::string& str);
+bool JudgeKeyword(const std::string& str);//判断keyword重复
 
 bool ValidateUserData1(const std::string& str);//UserID,Password,CurrentPassword,NewPassword
 

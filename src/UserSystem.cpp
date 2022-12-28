@@ -23,7 +23,7 @@ UserSystem::UserSystem() :UserData("User") {
 UserSystem::~UserSystem() {
   file.seekp(0);
   file.write(reinterpret_cast<char*>(&user_cnt), sizeof(int));
-  while (!UserStack.empty()) UserLogout();
+  while (!UserStack.empty()) UserLogout();//退出系统的时候登出所有账户
   file.close();
 }
 
@@ -45,7 +45,7 @@ void UserSystem::UserRegister(const std::string& id, const std::string& password
   //std::cout << "user registered:\nid:" << id << "\npassword:" << password << "\nname:" << name << std::endl;
 }
 
-void UserSystem::UserLogin(const std::string& id,const std::string& password) {
+void UserSystem::UserLogin(const std::string& id, const std::string& password) {
   auto res = UserData.find(id);
   if (!res.size()) throw Exception("error:user doesn't exists");
   BookstoreUser curUser;
@@ -58,7 +58,7 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
     //std::cout << "login success by override" << std::endl;
     //std::cout << "login user count" << UserStack.size() << std::endl;
     return;
-  }
+  }//先判断密码正确性再进行超载登录
   curUser.login++;
   UserStack.push_back(std::make_pair(curUser, 0));
   writeUser(res[0], curUser);
@@ -66,7 +66,7 @@ void UserSystem::UserLogin(const std::string& id,const std::string& password) {
   //std::cout << "login user count" << UserStack.size() << std::endl;
 }
 
-void UserSystem::ModifyPassword(const std::string& id,const std::string& curPassword,const std::string& newPassword) {
+void UserSystem::ModifyPassword(const std::string& id, const std::string& curPassword, const std::string& newPassword) {
   if (UserStack.empty()) throw Exception("error:authority not enough");
   auto res = UserData.find(id);
   if (!res.size()) throw Exception("error:user doesn't exists");
@@ -78,7 +78,7 @@ void UserSystem::ModifyPassword(const std::string& id,const std::string& curPass
     writeUser(res[0], curUser);
     //std::cout << "user password modified by override:\nid:" << id << std::endl;
     return;
-  }
+  }//先判断密码正确性再进行超载密码修改
   strcpy(curUser.user_password, newPassword.c_str());
   writeUser(res[0], curUser);
   //std::cout << "user password modified:\nid:" << id << std::endl;

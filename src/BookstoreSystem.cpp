@@ -3,11 +3,10 @@
 BookstoreSystem::BookstoreSystem() {
   log_file.open("log", std::ios::in | std::ios::out);
   if (!log_file.good()) {
-    row_cnt = 1;
+    row_cnt = 0;
     std::ofstream create("log");
     create.close();
     log_file.open("log", std::ios::in | std::ios::out);
-    log_file << "\n";
   }
   else {
     log_file.seekg(0);
@@ -50,13 +49,13 @@ void BookstoreSystem::show_log() {
   if (UserStack.empty() || UserStack.back().first.privilege < 7) {
     throw Exception("authority not enough");
   }
-  std::cout << "---------------------------------------------------------------------\n";
+  std::cout << "---------------------------------------------------------------------\n\n";
   log_file.seekg(0, std::ios::beg);
   std::string str;
   for (int i = 1; i <= row_cnt; i++) {
     getline(log_file, str);
     std::cout << str << "\n";
-  }
+  }//按照行数输出，防止文件流溢出错误
   std::cout << "---------------------------------------------------------------------\n";
   log_file.flush();
 }

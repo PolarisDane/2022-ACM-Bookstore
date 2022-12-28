@@ -282,7 +282,7 @@ void BookstoreWork() {
           }
           else throw Exception("error:invalid argument");
         }
-        if (flag) throw Exception("error:identical arguments");
+        if (flag) throw Exception("error:identical arguments");//判断参数重复与否
         for (int i = 2; i <= cnt; i++) {
           if (buffer[i][1] == 'I') { type = 1; str = buffer[i].substr(6); }
           else if (buffer[i][1] == 'n') { type = 2; str = buffer[i].substr(7, buffer[i].length() - 8); }
@@ -315,12 +315,13 @@ void BookstoreWork() {
         BookstoreSys.write_log(order, 0);
         break;
       }
-      else if (buffer[1].empty()) continue;
+      else if (buffer[1].empty()) continue;//空行
       else throw Exception("error:unknown input");
     }
     catch (Exception error) {
       std::cout << "Invalid" << std::endl;
-      std::cout << error.what() << std::endl;
+      //std::cout << error.what() << std::endl;
+      //报出错误类型
     }
   }
   ExitSystem();

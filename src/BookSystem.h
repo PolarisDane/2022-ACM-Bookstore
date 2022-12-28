@@ -65,6 +65,7 @@ public:
   void ShowFinanceLog(int count);
 
   friend std::vector<std::string> getKeyword(const std::string& str);
+  //拆分关键字
 
 private:
 
@@ -78,6 +79,7 @@ private:
 
   int book_cnt;
   LinkList<int> ISBNData, NameData, AuthorData, KeywordData;
+  //四种不同的数据分别开一个链表进行储存，同时同步修改
 
 };
 

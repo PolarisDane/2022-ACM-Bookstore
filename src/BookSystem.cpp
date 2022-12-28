@@ -171,7 +171,7 @@ void BookSystem::BuyBook(const std::string& isbn, const int& q) {
   if (res.empty()) throw Exception("error:book doesn't exist");
   BookstoreBook curBook;
   readBook(res[0], curBook);
-  if (curBook.Quantity < q) throw Exception("error:quantity not enough");
+  if (curBook.Quantity < q) throw Exception("error:quantity not enough");//书籍数量不够
   curBook.Quantity -= q;
   writeBook(res[0], curBook);
   fin_log_cnt++;
@@ -219,7 +219,7 @@ void BookSystem::ModifyBook(const int& type, const std::string& str) {
   if (type == 1) {
     if (curBook.ISBN == str) throw Exception("error:ISBN not changed");
     auto ret = ISBNData.find(str);
-    if (!ret.empty()) throw Exception("error:identical ISBN");
+    if (!ret.empty()) throw Exception("error:identical ISBN");//ISBN不能相同
     ISBNData.del(element<int>{curBook.ISBN, pos});
     strcpy(curBook.ISBN, str.c_str());
     ISBNData.insert(element<int>{curBook.ISBN, pos});
@@ -259,7 +259,7 @@ void BookSystem::ShowFinanceLog(int count) {
     if (!fin_log_cnt) {
       std::cout << "+ 0.00 - 0.00" << std::endl;
       return;
-    }
+    }//财务记录为空
     std::cout << std::fixed << std::setprecision(2) << "+ " << income.back() << " - " << outcome.back() << std::endl;
     return;
   }

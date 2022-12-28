@@ -103,6 +103,7 @@ public:
 
   void output();
   std::vector<T> listAll();
+
 };
 
 template <class T>
@@ -185,14 +186,11 @@ LinkList<T>::~LinkList() {
 
 template <class T>
 void LinkList<T>::readNode(const int& pos, node<T>& p) {
-  if (pos < 1) std::cout << "233" << std::endl;
   file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p), nodeSize);
 }
-
 template <class T>
 void LinkList<T>::readInfo(const int& pos, node<T>& p) {
-  if (pos < 1) std::cout << "233" << std::endl;
   file.seekg((pos - 1) * nodeSize + intSize * 2);
   file.read(reinterpret_cast<char*>(&p.siz), valSize);
   file.read(reinterpret_cast<char*>(&p.pos), valSize);
@@ -201,10 +199,8 @@ void LinkList<T>::readInfo(const int& pos, node<T>& p) {
   file.read(reinterpret_cast<char*>(&p.minimum), elementSize);
   file.read(reinterpret_cast<char*>(&p.maximum), elementSize);
 }
-
 template <class T>
 void LinkList<T>::writeNode(const int& pos, node<T>& x) {
-  if (pos < 1) std::cout << "233" << std::endl;
   x.minimum = x.data[1]; x.maximum = x.data[x.siz];
   file.seekp((pos - 1) * nodeSize + intSize * 2);
   file.write(reinterpret_cast<char*>(&x), nodeSize);
@@ -271,7 +267,6 @@ void LinkList<T>::insert(const element<T>& x) {
   }
   if (p.pre && !flag) readNode(p.pre, p);
   else readNode(p.pos, p);
-  //find the suitable place for insert
   if (x < p.data[1]) {
     p.siz++;
     for (int j = p.siz; j >= 1; j--) p.data[j] = p.data[j - 1];
@@ -311,7 +306,7 @@ void LinkList<T>::del(const element<T>& x) {
   if (find_flag && p.siz == 0 && !p.nxt && !p.pre) {
     block_cnt--; space_cnt = 0;
     return;
-  }
+  }//特判链表被删空的情况，防止链表头为空
   if (find_flag) {
     merge(p); writeNode(p.pos, p);
   }
@@ -343,6 +338,7 @@ std::vector<T> LinkList<T>::find(const std::string& index) {
   }
   return res;
 }
+
 template <class T>
 void LinkList<T>::output() {
   node<T> p;
@@ -356,6 +352,7 @@ void LinkList<T>::output() {
     readNode(p.nxt, p);
   }
 }//for test only
+
 template <class T>
 std::vector<T> LinkList<T>::listAll() {
   std::vector<T> res;
