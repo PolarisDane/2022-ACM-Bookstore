@@ -7,6 +7,7 @@ BookstoreSystem::BookstoreSystem() {
     std::ofstream create("log");
     create.close();
     log_file.open("log", std::ios::in | std::ios::out);
+    log_file << "                     \n";
   }
   else {
     log_file.seekg(0);
@@ -52,6 +53,7 @@ void BookstoreSystem::show_log() {
   std::cout << "---------------------------------------------------------------------\n\n";
   log_file.seekg(0, std::ios::beg);
   std::string str;
+  getline(log_file, str);
   for (int i = 1; i <= row_cnt; i++) {
     getline(log_file, str);
     std::cout << str << "\n";
