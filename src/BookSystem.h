@@ -37,6 +37,7 @@ private:
 };
 
 class BookSystem {
+  friend class BookstoreSystem;
 public:
 
   BookSystem();

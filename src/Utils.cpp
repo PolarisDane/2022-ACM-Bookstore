@@ -162,10 +162,12 @@ void BookstoreWork() {
         if (!ValidateUserData1(buffer[3])) throw Exception("error:invalid argument");
         if (cnt == 3) BookstoreSys.UserSys.UserLogin(buffer[2], buffer[3]);
         else BookstoreSys.UserSys.UserLogin(buffer[2], "");
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "logout") {
         if (cnt != 1) throw Exception("error:invalid argument");
         BookstoreSys.UserSys.UserLogout();
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "register") {
         if (cnt != 4)throw Exception("error:invalid argument");
@@ -173,6 +175,7 @@ void BookstoreWork() {
         if (!ValidateUserData1(buffer[3])) throw Exception("error:invalid argument");
         if (!ValidateUserData2(buffer[4])) throw Exception("error:invalid argument");
         BookstoreSys.UserSys.UserRegister(buffer[2], buffer[3], buffer[4]);
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "passwd") {
         if (cnt != 3 && cnt != 4)throw Exception("error:invalid argument");
@@ -181,6 +184,7 @@ void BookstoreWork() {
         if (!ValidateUserData1(buffer[4])) throw Exception("error:invalid argument");
         if (cnt == 4) BookstoreSys.UserSys.ModifyPassword(buffer[2], buffer[3], buffer[4]);
         else BookstoreSys.UserSys.ModifyPassword(buffer[2], "", buffer[3]);
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "useradd") {
         if (cnt != 5) throw Exception("error:invalid argument");
@@ -189,11 +193,13 @@ void BookstoreWork() {
         if (!ValidateUserData3(buffer[4])) throw Exception("error:invalid argument");
         if (!ValidateUserData2(buffer[5])) throw Exception("error:invalid argument");
         BookstoreSys.UserSys.UserAdd(buffer[2], buffer[3], buffer[5], std::stoi(buffer[4]));
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "delete") {
         if (cnt != 2) throw Exception("error:invalid argument");
         if (!ValidateUserData1(buffer[2])) throw Exception("error:invalid argument");
         BookstoreSys.UserSys.UserDelete(buffer[2]);
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "show") {
         if (buffer[2] == "finance") {
@@ -203,10 +209,12 @@ void BookstoreWork() {
             if (!ValidateCount(buffer[3])) throw Exception("error:invalid argument");
             BookstoreSys.BookSys.ShowFinanceLog(std::stoi(buffer[3]));
           }
+          BookstoreSys.write_log(order, 0);
           continue;
         }
         if (cnt == 1) {
           BookstoreSys.BookSys.ListBook();
+          BookstoreSys.write_log(order, 0);
           continue;
         }
         if (cnt != 2) throw Exception("error:invalid argument");
@@ -229,17 +237,20 @@ void BookstoreWork() {
           BookstoreSys.BookSys.SearchKeyword(buffer[2].substr(10, buffer[2].length() - 11));
         }
         else throw Exception("error:invalid argument");
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "buy") {
         if (cnt != 3) throw Exception("error:invalid argument");
         if (!ValidateISBN(buffer[2])) throw Exception("error:invalid argument");
         if (!ValidateQuantity(buffer[3])) throw Exception("error:invalid argument");
         BookstoreSys.BookSys.BuyBook(buffer[2], std::stoi(buffer[3]));
+        BookstoreSys.write_log(order, 1);
       }
       else if (buffer[1] == "select") {
         if (cnt != 2) throw Exception("error:invalid argument");
         if (!ValidateISBN(buffer[2])) throw Exception("error:invalid argument");
         BookstoreSys.BookSys.selectBook(buffer[2]);
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "modify") {
         int type = 0;
@@ -280,20 +291,28 @@ void BookstoreWork() {
           else if (buffer[i][1] == 'p') { type = 5; str = buffer[i].substr(7); }
           BookstoreSys.BookSys.ModifyBook(type, str);
         }
+        BookstoreSys.write_log(order, 0);
       }
       else if (buffer[1] == "import") {
         if (cnt != 3) throw Exception("error:invalid argument");
         if (!ValidateQuantity(buffer[2])) throw Exception("error:invalid argument");
         if (!ValidateCost(buffer[3])) throw Exception("error:invalid argument");
         BookstoreSys.BookSys.ImportBook(std::stoi(buffer[2]), std::stod(buffer[3]));
+        BookstoreSys.write_log(order, -1);
       }
-      else if (buffer[1] == "log") {}//incomplete
+      else if (buffer[1] == "log") {
+        if (cnt != 1) throw Exception("error:invalid argument");
+        BookstoreSys.show_log();
+        BookstoreSys.write_log(order, 0);
+      }
       else if (buffer[1] == "exit") {
         if (cnt != 1) throw Exception("error:invalid argument");
+        BookstoreSys.write_log(order, 0);
         break;
       }
       else if (buffer[1] == "quit") {
         if (cnt != 1) throw Exception("error:invalid argument");
+        BookstoreSys.write_log(order, 0);
         break;
       }
       else if (buffer[1].empty()) continue;
@@ -301,7 +320,7 @@ void BookstoreWork() {
     }
     catch (Exception error) {
       std::cout << "Invalid" << std::endl;
-      //std::cout << error.what() << std::endl;
+      std::cout << error.what() << std::endl;
     }
   }
   ExitSystem();

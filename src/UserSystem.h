@@ -10,6 +10,7 @@
 class BookstoreUser {
   friend class UserSystem;
   friend class BookSystem;
+  friend class BookstoreSystem;
 public:
 
   BookstoreUser();
@@ -33,6 +34,7 @@ extern std::vector<std::pair<BookstoreUser, int>> UserStack;
 
 class UserSystem {
   friend class BookSystem;
+  friend class BookstoreSystem;
 public:
 
   UserSystem();
